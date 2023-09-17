@@ -13,24 +13,41 @@ namespace dotnet_rgb.Services.CharacterService
             new Character(),
             new Character { Id = 1, Name = "Sam"}
         };
-        public List<Character> AddCharacter(Character newCharacter)
-        {
-            characters.Add(newCharacter);
-            return characters;
+        private readonly IMapper _mapper;
+
+        public CharacterService(IMapper mapper){
+            _mapper = mapper;
         }
 
-        public List<Character> GetAllCharacters()
+        public async Task<ServiceResponse<List<GetcharacterDTO>>> AddCharacter(AddCharacterDTO newCharacter)
         {
-            return characters;
+            
+            var ServiceResponse = new ServiceResponse<List<Character>>();
+            characters.Add(_mapper.Map<Character>(newCharacter));
+            ServiceResponse.Data = characters.Select(c => _mapper.Map<GetcharacterDTO>(c)).ToList();
+            return ServiceResponse;
+            // characters.Add(newCharacter);    // without service resonse
+            // return characters;
         }
 
-        public Character GetCharacterById(int id)
+        public async Task<ServiceResponse<List<GetcharacterDTO>>> GetAllCharacters()
         {
+            var ServiceResponse = new ServiceResponse<List<Character>>();
+            ServiceResponse.Data = characters.Select(c => _mapper.Map<GetcharacterDTO>(c)).ToList();
+            return ServiceResponse;
+        }
+
+        public async Task<ServiceResponse<GetcharacterDTO>> GetCharacterById(int id)
+        {
+            var ServiceResponse = new ServiceResponse<Character>();
             var character = characters.FirstOrDefault(c => c.Id == id);
-            if (character != null){
-                return character;
-            }
-            throw new Exception("Character not found");
+            ServiceResponse.Data = _mapper.Map<GetcharacterDTO>(character);
+            return ServiceResponse;
+            // var character = characters.FirstOrDefault(c => c.Id == id);
+            // if (character != null){
+            //     return character;
+            // }
+            // throw new Exception("Character not found");
         }
     }
 }
