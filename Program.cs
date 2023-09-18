@@ -2,12 +2,18 @@ global using dotnet_rgb.Models; // the whole app knows this reference
 global using dotnet_rgb.Services.CharacterService;  // using the new interface and class for dependency injection
 global using dotnet_rgb.Dtos.Character;
 global using AutoMapper;
+global using Microsoft.EntityFrameworkCore;
+global using dotnet_rgb.Data;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+// connecting with Sql Server Database
+builder.Services.AddDbContext<DataContext>(options => {
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

@@ -14,9 +14,11 @@ namespace dotnet_rgb.Services.CharacterService
             new Character { Id = 1, Name = "Sam"}
         };
         private readonly IMapper _mapper;
+        private readonly DataContext _context;
 
-        public CharacterService(IMapper mapper){
+        public CharacterService(IMapper mapper, DataContext context){
             _mapper = mapper;
+            _context = context;
         }
 
         public async Task<ServiceResponse<List<GetcharacterDTO>>> AddCharacter(AddCharacterDTO newCharacter)
@@ -35,15 +37,16 @@ namespace dotnet_rgb.Services.CharacterService
         public async Task<ServiceResponse<List<GetcharacterDTO>>> GetAllCharacters()
         {
             var ServiceResponse = new ServiceResponse<List<GetcharacterDTO>>();
-            ServiceResponse.Data = characters.Select(c => _mapper.Map<GetcharacterDTO>(c)).ToList();
+            var dbCharacters = await _context.Characters.ToListAsync();     // getting data from database
+            ServiceResponse.Data = dbCharacters.Select(c => _mapper.Map<GetcharacterDTO>(c)).ToList();
             return ServiceResponse;
         }
 
         public async Task<ServiceResponse<GetcharacterDTO>> GetCharacterById(int id)
         {
             var ServiceResponse = new ServiceResponse<GetcharacterDTO>();
-            var character = characters.FirstOrDefault(c => c.Id == id);
-            ServiceResponse.Data = _mapper.Map<GetcharacterDTO>(character);
+            var dbCharacter = await _context.Characters.FirstOrDefaultAsync(c => c.Id == id);
+            ServiceResponse.Data = _mapper.Map<GetcharacterDTO>(dbCharacter);
             return ServiceResponse;
             // var character = characters.FirstOrDefault(c => c.Id == id);
             // if (character != null){
